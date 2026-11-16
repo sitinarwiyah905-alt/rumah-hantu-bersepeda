@@ -1,0 +1,700 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="Gowes Tengah Malam adalah game arcade bersepeda melewati rumah hantu, menghindari hantu dan mengumpulkan lentera.">
+<meta name="author" content="Studio Gowes Malam">
+<meta name="theme-color" content="#17251e">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gowes Malam">
+<meta name="mobile-web-app-capable" content="yes">
+<meta property="og:type" content="game">
+<meta property="og:title" content="Gowes Tengah Malam">
+<meta property="og:description" content="Petualangan sepeda di rumah hantu. Kumpulkan lentera dan temukan pintu keluar!">
+<meta property="og:locale" content="id_ID">
+<meta property="og:site_name" content="Gowes Tengah Malam">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gowes Tengah Malam">
+<meta name="twitter:description" content="Game petualangan sepeda di rumah hantu.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2317251e'/%3E%3Ccircle cx='25' cy='70' r='15' fill='none' stroke='%23e9c46a' stroke-width='5'/%3E%3Ccircle cx='75' cy='70' r='15' fill='none' stroke='%23e9c46a' stroke-width='5'/%3E%3Cpath d='M25 70L45 38L75 70H25L57 70L45 38' fill='none' stroke='%23e9c46a' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Gowes Tengah Malam</title>
+<style>
+:root{
+ --night:oklch(19% .035 155);
+ --deep:oklch(25% .045 155);
+ --green:oklch(43% .075 145);
+ --gold:oklch(82% .13 83);
+ --cream:oklch(91% .035 85);
+ --muted:oklch(72% .035 90);
+ --red:oklch(62% .15 35);
+ --line:oklch(48% .04 145);
+ --display:Georgia,"Times New Roman",serif;
+ --body:"Trebuchet MS",Verdana,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--night);color:var(--cream);font-family:var(--body);overscroll-behavior:none}
+html{-webkit-text-size-adjust:100%}
+body{
+ min-height:100vh;
+ min-height:100dvh;
+ overflow-x:hidden;
+ user-select:none;-webkit-user-select:none;
+ -webkit-touch-callout:none;
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.app{
+ min-height:100vh;min-height:100dvh;
+ padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left));
+ display:flex;flex-direction:column;
+ background:
+ linear-gradient(145deg,transparent 65%,rgba(185,150,80,.06)),
+ var(--night);
+ position:relative;isolation:isolate;
+}
+.app:after{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:10;opacity:.045;
+ background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+}
+header{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:12px 4px 16px;gap:12px;z-index:2;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:42px;height:42px;color:var(--gold);flex:none}
+.brand h1{font:700 clamp(18px,3vw,25px) var(--display);margin:0;letter-spacing:-.04em}
+.brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.header-actions{display:flex;gap:8px}
+.icon-btn,.small-btn{
+ min-width:44px;min-height:44px;border:1px solid var(--line);
+ background:var(--deep);border-radius:12px;display:grid;place-items:center;
+}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn:hover,.small-btn:hover{border-color:var(--gold);background:var(--green)}
+main{width:min(100%,1040px);margin:auto;flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:20px;align-items:stretch}
+.stage-wrap{position:relative;min-width:0}
+.stage-top{display:flex;justify-content:space-between;align-items:center;margin:0 4px 10px;gap:8px}
+.stage-top strong{font:700 19px var(--display);color:var(--gold)}
+.stage-top span{font-size:12px;color:var(--muted)}
+.stage{
+ position:relative;overflow:hidden;border:1px solid var(--line);
+ border-radius:22px;background:#19261e;
+ box-shadow:0 18px 45px rgba(0,0,0,.3);
+}
+canvas{
+ display:block;width:100%;height:auto;aspect-ratio:4/5;
+ touch-action:none;user-select:none;-webkit-user-select:none;
+ -webkit-touch-callout:none;-webkit-user-drag:none;
+}
+.hud{
+ position:absolute;left:12px;right:12px;top:12px;
+ display:flex;justify-content:space-between;gap:8px;pointer-events:none;
+}
+.hud-chip{padding:8px 11px;border-radius:10px;background:rgba(17,29,22,.9);border:1px solid rgba(233,196,106,.35);font-size:13px}
+.hud-chip b{color:var(--gold);font-variant-numeric:tabular-nums}
+.side-panel{
+ padding:20px;border:1px solid var(--line);border-radius:18px;
+ background:var(--deep);display:flex;flex-direction:column;gap:16px;
+}
+.side-panel h2{font:700 26px var(--display);margin:0;color:var(--gold)}
+.side-panel p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
+.stat{padding:12px 0;border-bottom:1px solid var(--line)}
+.stat span{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.stat strong{font:700 25px var(--display)}
+.action{
+ min-height:48px;padding:12px 16px;border:1px solid var(--gold);
+ border-radius:12px;background:var(--gold);color:#253025;font-weight:800;
+}
+.action:hover{background:#f5d98f;transform:translateY(-1px)}
+.secondary{
+ min-height:46px;padding:10px 14px;border:1px solid var(--line);
+ border-radius:12px;background:transparent;color:var(--cream);
+}
+.secondary:hover{border-color:var(--gold);background:rgba(233,196,106,.08)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.control-btn{
+ min-height:56px;border-radius:14px;border:1px solid var(--line);
+ background:var(--deep);font-size:22px;font-weight:800;
+ touch-action:none;
+}
+.control-btn:active,.control-btn.active{background:var(--green);border-color:var(--gold)}
+.mobile-help{font-size:12px;color:var(--muted);line-height:1.5}
+.overlay{
+ position:absolute;inset:0;z-index:4;
+ display:flex;align-items:center;justify-content:center;
+ padding:18px;background:rgba(12,20,16,.84);
+}
+.overlay[hidden]{display:none}
+.dialog{
+ width:min(100%,390px);max-height:100%;overflow:auto;
+ padding:24px;border:1px solid var(--gold);border-radius:20px;
+ background:#202f25;box-shadow:0 20px 60px rgba(0,0,0,.45);
+ animation:appear .35s ease both;
+}
+.dialog h2{font:700 clamp(27px,6vw,38px) var(--display);color:var(--gold);margin:0 0 10px}
+.dialog p{color:var(--cream);line-height:1.6;font-size:15px}
+.dialog .actions{display:grid;gap:9px;margin-top:18px}
+.dialog label{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dialog input[type=range]{width:110px;accent-color:var(--gold)}
+.dialog select{font:inherit;background:var(--night);color:var(--cream);border:1px solid var(--line);padding:8px;border-radius:8px}
+.message{min-height:25px;text-align:center;color:var(--gold);font-size:13px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:14px 0 8px}
+.rotate-note{display:none}
+@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+ .game-layout{grid-template-columns:1fr;max-width:560px;margin:auto;width:100%}
+ .side-panel{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:15px}
+ .side-panel h2,.side-panel p{grid-column:1/-1}
+ .side-panel .action,.side-panel .secondary{width:100%}
+ main{justify-content:flex-start}
+}
+@media(max-width:480px){
+ .app{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+ header{padding-top:8px}
+ .brand-mark{width:36px;height:36px}
+ .stage{border-radius:16px}
+ .side-panel{padding:12px}
+ .dialog{padding:19px}
+ .hud{left:8px;right:8px;top:8px}
+ .hud-chip{font-size:12px;padding:7px 9px}
+}
+@media(min-width:1200px){
+ main{gap:24px}
+ .game-layout{grid-template-columns:minmax(0,1fr) 270px}
+}
+@media(orientation:landscape) and (max-height:560px){
+ header{padding:4px}
+ main{justify-content:flex-start}
+ .game-layout{grid-template-columns:minmax(0,1fr) 220px;max-width:900px;margin:auto}
+ canvas{aspect-ratio:5/4;max-height:62dvh}
+ .side-panel{padding:12px;gap:8px}
+ footer{padding:4px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand">
+  <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+   <circle cx="11" cy="34" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/>
+   <circle cx="38" cy="34" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/>
+   <path d="M11 34 22 15 38 34H11L28 34 22 15M19 15h7M34 13h6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div><h1>Gowes Tengah Malam</h1><small>Ekspedisi rumah tua</small></div>
+ </div>
+ <div class="header-actions">
+  <button class="icon-btn" id="soundBtn" aria-label="Aktifkan atau matikan suara" title="Suara">
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15 9a5 5 0 0 1 0 6M18 5a10 10 0 0 1 0 14"/></svg>
+  </button>
+  <button class="icon-btn" id="fullscreenBtn" aria-label="Layar penuh" title="Layar penuh">
+   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>
+  </button>
+ </div>
+</header>
+
+<main>
+ <div class="game-layout">
+  <section class="stage-wrap" aria-label="Area permainan">
+   <div class="stage-top"><strong>Jalur Rumah Tua</strong><span id="levelLabel">MISI 01 · MALAM PERTAMA</span></div>
+   <div class="stage">
+    <canvas id="game" width="480" height="600" draggable="false" aria-label="Permainan bersepeda. Gunakan tombol kiri dan kanan untuk menghindari rintangan."></canvas>
+    <div class="hud" aria-live="polite">
+     <div class="hud-chip">🕯️ <b id="score">0</b></div>
+     <div class="hud-chip">❤️ <b id="lives">3</b></div>
+     <div class="hud-chip">📍 <b id="distance">0</b> m</div>
+    </div>
+    <div class="overlay" id="overlay">
+     <div class="dialog" id="dialog">
+      <h2>Gowes Tengah Malam</h2>
+      <p>Malam ini kamu harus melewati rumah tua yang dipenuhi hantu jahil. Kumpulkan lentera dan temukan pintu keluar!</p>
+      <p><strong>Hati-hati:</strong> jangan sampai menabrak penghuni rumah tua.</p>
+      <div class="actions">
+       <button class="action" id="startBtn">🚲 Mulai Bersepeda</button>
+       <button class="secondary" id="howBtn">Cara Bermain</button>
+       <button class="secondary" id="settingsBtn">Pengaturan</button>
+      </div>
+      <p class="mobile-help" id="bestText">Rekor terbaik: 0 poin</p>
+     </div>
+    </div>
+   </div>
+   <div class="message" id="message" aria-live="polite">Siapkan sepedamu, petualangan segera dimulai.</div>
+   <div class="controls" aria-label="Kontrol sepeda">
+    <button class="control-btn" id="leftBtn" aria-label="Belok kiri">←</button>
+    <button class="control-btn" id="rightBtn" aria-label="Belok kanan">→</button>
+   </div>
+   <p class="mobile-help">HP: tekan tombol panah. Komputer: gunakan ← → atau A dan D.</p>
+  </section>
+
+  <aside class="side-panel">
+   <h2>Misi Malam Ini</h2>
+   <p>Lewati lorong berhantu, kumpulkan cahaya lentera, dan capai gerbang sebelum kesempatanmu habis.</p>
+   <div class="stat"><span>POIN TERKUMPUL</span><strong id="sideScore">0</strong></div>
+   <div class="stat"><span>REKOR TERBAIK</span><strong id="bestScore">0</strong></div>
+   <button class="action" id="pauseBtn">Ⅱ Jeda Permainan</button>
+   <button class="secondary" id="menuBtn">⌂ Menu Utama</button>
+   <div class="mobile-help">Target misi: 900 meter. Setiap lentera bernilai 10 poin. Kamu punya 3 kesempatan.</div>
+  </aside>
+ </div>
+</main>
+<footer>GOWES TENGAH MALAM · Petualangan di rumah tua · Dibuat untuk layar besar dan kecil</footer>
+</div>
+
+<script>
+"use strict";
+(()=>{
+const $=id=>document.getElementById(id);
+const canvas=$("game");
+const ctx=canvas.getContext("2d");
+const W=480,H=600;
+const LANES=[105,240,375];
+const GOAL=900;
+const STORE="app_v1_state";
+const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const state={
+ mode:"menu",score:0,best:0,lives:3,distance:0,speed:190,
+ playerLane:1,playerX:240,entities:[],particles:[],
+ spawnClock:0,lastTime:0,raf:0,frameCount:0,fpsClock:0,
+ muted:false,sfx:true,music:false,difficulty:"normal",
+ audio:null,wake:null,quality:true,onboarded:false,
+ pointer:new Set(),lastSpawnLane:-1,started:false
+};
+function load(){
+ try{
+  const raw=localStorage.getItem(STORE);
+  if(!raw)return;
+  const d=JSON.parse(raw);
+  if(!d||d.version!==1)return;
+  state.best=Number.isFinite(d.best)?Math.max(0,d.best):0;
+  state.muted=!!d.muted;
+  state.sfx=d.sfx!==false;
+  state.music=!!d.music;
+  state.difficulty=["easy","normal","hard"].includes(d.difficulty)?d.difficulty:"normal";
+  state.onboarded=!!d.onboarded;
+ }catch(e){showMessage("Data permainan bermasalah. Pengaturan dimulai ulang.");}
+}
+function save(){
+ try{
+  localStorage.setItem(STORE,JSON.stringify({
+   version:1,best:state.best,muted:state.muted,sfx:state.sfx,
+   music:state.music,difficulty:state.difficulty,onboarded:state.onboarded
+  }));
+ }catch(e){showMessage("Penyimpanan penuh. Hapus data lama melalui Pengaturan.");}
+}
+function showMessage(t){$("message").textContent=t}
+function updateHUD(){
+ $("score").textContent=state.score;
+ $("sideScore").textContent=state.score;
+ $("lives").textContent=state.lives;
+ $("distance").textContent=Math.floor(state.distance);
+ $("bestScore").textContent=state.best;
+ $("bestText").textContent="Rekor terbaik: "+state.best+" poin";
+}
+function audio(){
+ if(state.muted||!state.sfx)return;
+ try{
+  if(!state.audio)state.audio=new(window.AudioContext||window.webkitAudioContext)();
+  if(state.audio.state==="suspended")state.audio.resume();
+  const a=state.audio,o=a.createOscillator(),g=a.createGain();
+  o.type="sine";o.frequency.value=560;
+  g.gain.setValueAtTime(.07,a.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.16);
+  o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.17);
+ }catch(e){showMessage("Suara tidak tersedia di browser ini.");}
+}
+function pauseAudio(){
+ if(state.audio&&state.audio.state==="running"){
+  try{state.audio.suspend()}catch(e){}
+ }
+}
+function resumeAudio(){
+ if(state.audio&&state.audio.state==="suspended"){
+  try{state.audio.resume()}catch(e){}
+ }
+}
+async function acquireWake(){
+ try{if("wakeLock" in navigator)state.wake=await navigator.wakeLock.request("screen")}catch(e){}
+}
+function releaseWake(){
+ try{if(state.wake){state.wake.release();state.wake=null}}catch(e){}
+}
+function setMode(mode){
+ state.mode=mode;
+ $("overlay").hidden=mode==="playing";
+ $("pauseBtn").textContent=mode==="paused"?"▶ Lanjutkan":"Ⅱ Jeda Permainan";
+ if(mode==="menu")showMenu();
+ if(mode==="paused")showPause();
+ if(mode==="gameover")showEnd(false);
+ if(mode==="win")showEnd(true);
+ if(mode!=="playing"){releaseWake();pauseAudio()}
+ else{acquireWake();resumeAudio()}
+}
+function showMenu(){
+ $("dialog").innerHTML=`
+ <h2>Gowes Tengah Malam</h2>
+ <p>Malam ini kamu harus melewati rumah tua yang dipenuhi hantu jahil. Kumpulkan lentera dan temukan pintu keluar!</p>
+ <p><strong>Hati-hati:</strong> jangan sampai menabrak penghuni rumah tua.</p>
+ <div class="actions">
+ <button class="action" id="startBtn">🚲 Mulai Bersepeda</button>
+ <button class="secondary" id="howBtn">Cara Bermain</button>
+ <button class="secondary" id="settingsBtn">Pengaturan</button>
+ </div><p class="mobile-help">Rekor terbaik: ${state.best} poin</p>`;
+ $("startBtn").onclick=startGame;
+ $("howBtn").onclick=showHow;
+ $("settingsBtn").onclick=showSettings;
+}
+function showHow(){
+ $("dialog").innerHTML=`
+ <h2>Cara Bermain</h2>
+ <p>🚲 Belok kiri dan kanan untuk berpindah jalur.</p>
+ <p>🕯️ Ambil lentera untuk mendapat 10 poin.</p>
+ <p>👻 Hindari hantu, kelelawar, dan peti tua. Tabrakan mengurangi satu kesempatan.</p>
+ <p>🏁 Capai jarak 900 meter untuk memenangkan misi.</p>
+ <p><strong>Keyboard:</strong> ← → atau A/D untuk bergerak. ESC/P untuk jeda, M untuk suara, F untuk layar penuh, R untuk mulai ulang.</p>
+ <p><strong>HP:</strong> gunakan dua tombol panah di bawah arena.</p>
+ <div class="actions"><button class="action" id="backBtn">Kembali</button><button class="secondary" id="playBtn">Mulai Bermain</button></div>`;
+ $("backBtn").onclick=showMenu;
+ $("playBtn").onclick=startGame;
+}
+function showSettings(){
+ $("dialog").innerHTML=`
+ <h2>Pengaturan</h2>
+ <label>Suara efek <input id="sfxOption" type="checkbox" ${state.sfx?"checked":""}></label>
+ <label>Mode senyap <input id="muteOption" type="checkbox" ${state.muted?"checked":""}></label>
+ <label>Tingkat kesulitan
+ <select id="difficultyOption">
+ <option value="easy" ${state.difficulty==="easy"?"selected":""}>Santai</option>
+ <option value="normal" ${state.difficulty==="normal"?"selected":""}>Normal</option>
+ <option value="hard" ${state.difficulty==="hard"?"selected":""}>Menantang</option>
+ </select></label>
+ <div class="actions"><button class="action" id="saveSettings">Simpan Pengaturan</button><button class="secondary" id="resetData">Hapus Rekor & Pengaturan</button><button class="secondary" id="backBtn">Kembali</button></div>`;
+ $("saveSettings").onclick=()=>{
+  state.sfx=$("sfxOption").checked;
+  state.muted=$("muteOption").checked;
+  state.difficulty=$("difficultyOption").value;
+  save();updateSoundButton();showMessage("Pengaturan berhasil disimpan.");showMenu();
+ };
+ $("resetData").onclick=()=>{
+  if(!confirm("Hapus rekor dan semua pengaturan tersimpan?"))return;
+  try{localStorage.removeItem(STORE)}catch(e){}
+  state.best=0;state.muted=false;state.sfx=true;state.difficulty="normal";
+  save();updateHUD();showMessage("Rekor dan pengaturan sudah diatur ulang.");showMenu();
+ };
+ $("backBtn").onclick=showMenu;
+}
+function showPause(){
+ $("dialog").innerHTML=`
+ <h2>Istirahat Dulu</h2><p>Sepedamu berhenti. Tarik napas, lalu lanjutkan perjalanan saat siap.</p>
+ <div class="actions"><button class="action" id="resumeBtn">▶ Lanjutkan</button><button class="secondary" id="restartBtn">↻ Mulai Ulang</button><button class="secondary" id="menuFromPause">⌂ Menu Utama</button></div>`;
+ $("resumeBtn").onclick=()=>setMode("playing");
+ $("restartBtn").onclick=()=>{if(confirm("Mulai ulang perjalanan ini?"))startGame()};
+ $("menuFromPause").onclick=()=>{setMode("menu");showMessage("Kembali ke halaman utama.")};
+}
+function showEnd(win){
+ $("dialog").innerHTML=`
+ <h2>${win?"Berhasil Keluar!":"Kesempatan Habis"}</h2>
+ <p>${win?"Hebat! Kamu berhasil melewati rumah tua dan menemukan pintu keluar.":"Perjalanan berakhir. Hantu-hantu jahil berhasil menghalangi jalanmu. Coba lagi!"}</p>
+ <p>Jarak: <strong>${Math.floor(state.distance)} meter</strong><br>Poin: <strong>${state.score}</strong><br>Rekor: <strong>${state.best}</strong></p>
+ <div class="actions"><button class="action" id="againBtn">🚲 Main Lagi</button><button class="secondary" id="homeBtn">⌂ Menu Utama</button></div>`;
+ $("againBtn").onclick=startGame;
+ $("homeBtn").onclick=()=>{setMode("menu");showMessage("Pilih Mulai Bersepeda untuk mencoba lagi.")};
+}
+function startGame(){
+ state.score=0;state.lives=3;state.distance=0;state.playerLane=1;
+ state.playerX=LANES[1];state.entities=[];state.particles=[];
+ state.spawnClock=.8;state.lastTime=0;state.speed=state.difficulty==="easy"?155:state.difficulty==="hard"?235:190;
+ state.lastSpawnLane=-1;state.started=true;
+ state.onboarded=true;save();updateHUD();showMessage("Awas, ada penghuni rumah tua!");
+ setMode("playing");audio();history.pushState({game:true},"","#main-game");
+}
+function pauseGame(){
+ if(state.mode==="playing")setMode("paused");
+}
+function changeLane(dir){
+ if(state.mode!=="playing")return;
+ state.playerLane=Math.max(0,Math.min(2,state.playerLane+dir));
+ audio();
+}
+function spawnEntity(){
+ const isLight=Math.random()<.34;
+ let lane=Math.floor(Math.random()*3);
+ if(lane===state.lastSpawnLane)lane=(lane+1+Math.floor(Math.random()*2))%3;
+ state.lastSpawnLane=lane;
+ const type=isLight?"light":["ghost","bat","crate"][Math.floor(Math.random()*3)];
+ const entity={type,lane,x:LANES[lane],y:-45,r:type==="light"?14:25,hit:false,phase:Math.random()*6.28};
+ // [SPAWN VALIDATION] Entitas ditempatkan di jalur 0–2, seluruh jalur berada di area jalan yang dapat dilalui.
+ state.entities.push(entity);
+}
+function collide(a,b){
+ return Math.abs(a.x-b.x)<34&&Math.abs(a.y-b.y)<38;
+}
+function burst(x,y){
+ if(reduced||!state.quality)return;
+ for(let i=0;i<7;i++){
+  state.particles.push({x,y,vx:(Math.random()-.5)*100,vy:(Math.random()-.5)*100,life:.45});
+ }
+}
+function hitEntity(e){
+ e.hit=true;
+ if(e.type==="light"){
+  state.score+=10;burst(e.x,e.y);audio();showMessage("Lentera ditemukan! +10 poin.");
+ }else{
+  state.lives--;burst(e.x,e.y);audio();showMessage("Ups! Kamu menabrak "+(e.type==="ghost"?"hantu":e.type==="bat"?"kelelawar":"peti tua")+"!");
+  if(navigator.vibrate)try{navigator.vibrate(70)}catch(err){}
+  if(state.lives<=0)endGame(false);
+ }
+ updateHUD();
+}
+function endGame(win){
+ if(state.mode!=="playing")return;
+ state.best=Math.max(state.best,state.score);save();updateHUD();
+ setMode(win?"win":"gameover");
+}
+function update(dt){
+ if(state.mode!=="playing")return;
+ state.distance+=dt*state.speed*.18;
+ state.spawnClock-=dt;
+ if(state.spawnClock<=0){
+  spawnEntity();
+  const base=state.difficulty==="easy"?1.45:state.difficulty==="hard"?.78:1.1;
+  state.spawnClock=base+Math.random()*.5;
+ }
+ const target=LANES[state.playerLane];
+ state.playerX+=(target-state.playerX)*Math.min(1,dt*12);
+ for(const e of state.entities){
+  e.y+=state.speed*dt;
+  e.x=LANES[e.lane]+Math.sin(e.phase+state.distance*.025)* (e.type==="ghost"?7:2);
+  if(!e.hit&&collide({x:state.playerX,y:490},e)){
+   hitEntity(e);
+  }
+ }
+ state.entities=state.entities.filter(e=>!e.hit&&e.y<H+50);
+ for(const p of state.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
+ state.particles=state.particles.filter(p=>p.life>0);
+ if(state.distance>=GOAL)endGame(true);
+ updateHUD();
+}
+function rounded(x,y,w,h,r){
+ ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+}
+function drawBackground(t){
+ ctx.fillStyle="#17251e";ctx.fillRect(0,0,W,H);
+ // Jendela rumah tua
+ for(let i=0;i<4;i++){
+  const x=i*132+8;
+  ctx.fillStyle="#27372c";rounded(x,80,78,125,8);
+  ctx.fillStyle="#b28b4c";ctx.globalAlpha=.18+Math.sin(t*.8+i)*.06;
+  rounded(x+9,91,60,100,5);ctx.globalAlpha=1;
+  ctx.strokeStyle="#64715a";ctx.lineWidth=4;
+  ctx.strokeRect(x+9,91,60,100);
+  ctx.beginPath();ctx.moveTo(x+39,91);ctx.lineTo(x+39,191);ctx.moveTo(x+9,141);ctx.lineTo(x+69,141);ctx.stroke();
+ }
+ // Lantai
+ ctx.fillStyle="#364438";ctx.fillRect(0,220,W,380);
+ ctx.fillStyle="#29362d";ctx.beginPath();ctx.moveTo(105,220);ctx.lineTo(375,220);ctx.lineTo(480,600);ctx.lineTo(0,600);ctx.closePath();ctx.fill();
+ // Jalur
+ ctx.strokeStyle="rgba(220,198,137,.2)";ctx.lineWidth=3;ctx.setLineDash([18,18]);
+ ctx.beginPath();ctx.moveTo(172,220);ctx.lineTo(80,600);ctx.moveTo(308,220);ctx.lineTo(400,600);ctx.stroke();ctx.setLineDash([]);
+ // ubin
+ ctx.strokeStyle="rgba(225,210,170,.08)";ctx.lineWidth=1;
+ for(let y=270;y<600;y+=65){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ // kabut
+ ctx.fillStyle="rgba(190,200,166,.035)";
+ for(let i=0;i<4;i++){
+  const x=(Math.sin(t*.17+i*2)*80+110+i*80);
+  ctx.beginPath();ctx.ellipse(x,300+i*62,100,15,0,0,Math.PI*2);ctx.fill();
+ }
+ // lampu
+ ctx.fillStyle="#e9c46a";
+ for(const x of [28,452]){
+  ctx.beginPath();ctx.arc(x,238,5,0,Math.PI*2);ctx.fill();
+ }
+}
+function drawBike(x,y,t){
+ ctx.save();ctx.translate(x,y);
+ const pedal=Math.sin(t*12)*.16;
+ ctx.strokeStyle="#e9c46a";ctx.lineWidth=5;
+ ctx.beginPath();ctx.arc(-23,19,17,0,Math.PI*2);ctx.arc(23,19,17,0,Math.PI*2);ctx.stroke();
+ ctx.strokeStyle="#d5b77b";ctx.lineWidth=4;ctx.lineCap="round";
+ ctx.beginPath();ctx.moveTo(-23,19);ctx.lineTo(-7,-14);ctx.lineTo(23,19);ctx.lineTo(-23,19);ctx.lineTo(7,19);ctx.lineTo(-7,-14);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(-7,-14);ctx.lineTo(-14,-20);ctx.moveTo(23,19);ctx.lineTo(29,-15);ctx.stroke();
+ ctx.fillStyle="#e4b78c";ctx.beginPath();ctx.arc(0,-38,12,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#394a3a";ctx.beginPath();ctx.arc(0,-43,13,Math.PI,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#e9c46a";ctx.fillRect(-9,-8,18,7);
+ ctx.restore();
+}
+function drawGhost(e,t){
+ ctx.save();ctx.translate(e.x,e.y+Math.sin(t*3+e.phase)*5);
+ if(e.type==="ghost"){
+  ctx.fillStyle="#d9e6d0";ctx.beginPath();ctx.arc(0,-3,20,Math.PI,0);ctx.lineTo(20,17);ctx.lineTo(10,12);ctx.lineTo(0,18);ctx.lineTo(-10,12);ctx.lineTo(-20,17);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#34443a";ctx.beginPath();ctx.arc(-7,-4,2.5,0,7);ctx.arc(7,-4,2.5,0,7);ctx.fill();
+  ctx.strokeStyle="#34443a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,5,4,0,Math.PI);ctx.stroke();
+ }else if(e.type==="bat"){
+  ctx.fillStyle="#8b9277";ctx.beginPath();ctx.moveTo(-24,0);ctx.quadraticCurveTo(-28,-20,-9,-11);ctx.lineTo(0,-3);ctx.lineTo(9,-11);ctx.quadraticCurveTo(28,-20,24,0);ctx.lineTo(9,8);ctx.lineTo(0,2);ctx.lineTo(-9,8);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#e9c46a";ctx.fillRect(-7,-5,3,3);ctx.fillRect(4,-5,3,3);
+ }else if(e.type==="crate"){
+  ctx.fillStyle="#9a7044";rounded(-19,-18,38,36,5);
+  ctx.strokeStyle="#c59a5b";ctx.lineWidth=3;ctx.strokeRect(-14,-13,28,26);
+  ctx.beginPath();ctx.moveTo(-14,-13);ctx.lineTo(14,13);ctx.moveTo(14,-13);ctx.lineTo(-14,13);ctx.stroke();
+ }else{
+  ctx.fillStyle="#e9c46a";ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff0b8";ctx.beginPath();ctx.arc(-4,-5,5,0,Math.PI*2);ctx.fill();
+ }
+ ctx.restore();
+}
+function render(t){
+ drawBackground(t);
+ for(const e of state.entities)drawGhost(e,t);
+ for(const p of state.particles){
+  ctx.globalAlpha=Math.max(0,p.life*2);
+  ctx.fillStyle="#e9c46a";ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill();
+ }
+ ctx.globalAlpha=1;
+ drawBike(state.playerX,490,t);
+ // Gerbang tujuan
+ ctx.strokeStyle="#9c8754";ctx.lineWidth=5;
+ ctx.strokeRect(170,18,140,28);
+ ctx.fillStyle="#e9c46a";ctx.font="bold 12px Georgia";ctx.textAlign="center";
+ ctx.fillText("PINTU KELUAR",240,37);
+ ctx.textAlign="left";
+}
+function loop(now){
+ if(state.mode!=="playing"){state.raf=0;return}
+ if(!state.lastTime)state.lastTime=now;
+ const dt=Math.min(.05,Math.max(0,(now-state.lastTime)/1000));
+ state.lastTime=now;
+ state.fpsClock+=dt;state.frameCount++;
+ if(state.fpsClock>=2){
+  const fps=state.frameCount/state.fpsClock;
+  if(fps<45)state.quality=false;
+  else if(fps>52)state.quality=true;
+  state.fpsClock=0;state.frameCount=0;
+ }
+ update(dt);render(now/1000);
+ if(state.mode==="playing")state.raf=requestAnimationFrame(loop);
+}
+function startLoop(){
+ if(state.raf)cancelAnimationFrame(state.raf);
+ state.raf=requestAnimationFrame(loop);
+}
+function resizeCanvas(){
+ const rect=canvas.getBoundingClientRect();
+ const dpr=Math.min(2,window.devicePixelRatio||1);
+ const width=Math.max(1,Math.round(rect.width*dpr));
+ const height=Math.max(1,Math.round(rect.height*dpr));
+ if(canvas.width!==width||canvas.height!==height){
+  canvas.width=width;canvas.height=height;
+ }
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.scale(width/W,height/H);
+ if(state.mode!=="playing")render(performance.now()/1000);
+}
+let resizeTimer=0;
+function scheduleResize(){
+ clearTimeout(resizeTimer);
+ resizeTimer=setTimeout(resizeCanvas,180);
+}
+function updateSoundButton(){
+ $("soundBtn").setAttribute("aria-label",state.muted?"Aktifkan suara":"Matikan suara");
+ $("soundBtn").innerHTML=state.muted?
+ '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/></svg>':
+ '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4zM15 9a5 5 0 0 1 0 6M18 5a10 10 0 0 1 0 14"/></svg>';
+}
+async function fullscreen(){
+ try{
+  if(!document.fullscreenElement){
+   if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+   else showMessage("Layar penuh tidak didukung browser ini.");
+  }else if(document.exitFullscreen)await document.exitFullscreen();
+ }catch(e){showMessage("Layar penuh tidak tersedia. Permainan tetap bisa dimainkan.");}
+}
+$("startBtn").onclick=startGame;
+$("howBtn").onclick=showHow;
+$("settingsBtn").onclick=showSettings;
+$("pauseBtn").onclick=()=>{
+ if(state.mode==="playing")pauseGame();
+ else if(state.mode==="paused")setMode("playing");
+ else showMessage("Mulai permainan terlebih dahulu.");
+};
+$("menuBtn").onclick=()=>{
+ if(state.mode==="playing"&&!confirm("Kembali ke menu? Perjalanan saat ini akan berakhir."))return;
+ setMode("menu");showMessage("Kamu kembali ke menu utama.");
+};
+$("soundBtn").onclick=()=>{
+ state.muted=!state.muted;save();updateSoundButton();
+ if(!state.muted){audio();resumeAudio()}
+ else pauseAudio();
+};
+$("fullscreenBtn").onclick=fullscreen;
+$("leftBtn").addEventListener("pointerdown",e=>{e.preventDefault();$("leftBtn").classList.add("active");changeLane(-1)});
+$("rightBtn").addEventListener("pointerdown",e=>{e.preventDefault();$("rightBtn").classList.add("active");changeLane(1)});
+for(const id of ["leftBtn","rightBtn"]){
+ const el=$(id);
+ ["pointerup","pointercancel","lostpointercapture","pointerleave"].forEach(ev=>el.addEventListener(ev,()=>el.classList.remove("active")));
+}
+window.addEventListener("keydown",e=>{
+ if(["ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+ if(e.repeat)return;
+ if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")changeLane(-1);
+ if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")changeLane(1);
+ if(e.key==="Escape"||e.key.toLowerCase()==="p"){
+  if(state.mode==="playing")pauseGame();else if(state.mode==="paused")setMode("playing");
+ }
+ if(e.key.toLowerCase()==="m")$("soundBtn").click();
+ if(e.key.toLowerCase()==="f")fullscreen();
+ if(e.key.toLowerCase()==="r"){
+  if(state.mode==="playing"||state.mode==="paused"){
+   if(confirm("Mulai ulang permainan?"))startGame();
+  }else if(state.mode==="gameover"||state.mode==="win")startGame();
+ }
+});
+canvas.addEventListener("contextmenu",e=>e.preventDefault());
+canvas.addEventListener("dragstart",e=>e.preventDefault());
+document.addEventListener("selectstart",e=>{
+ if(e.target===canvas||e.target.closest(".controls"))e.preventDefault();
+});
+window.addEventListener("blur",()=>{pauseGame();pauseAudio()});
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden){pauseGame();pauseAudio()}
+ else if(state.mode==="playing")resumeAudio();
+});
+window.addEventListener("resize",scheduleResize);
+if(window.visualViewport)window.visualViewport.addEventListener("resize",scheduleResize);
+window.addEventListener("beforeunload",e=>{
+ if(state.mode==="playing"){e.preventDefault();e.returnValue=""}
+});
+history.pushState({game:true},"","#main-game");
+window.addEventListener("popstate",()=>{
+ if(state.mode==="playing")pauseGame();
+ history.pushState({game:true},"","#main-game");
+});
+canvas.addEventListener("pointerdown",()=>resumeAudio());
+load();updateHUD();updateSoundButton();
+resizeCanvas();
+if(!state.onboarded){
+ $("dialog").innerHTML=`
+ <h2>Petualangan Dimulai</h2>
+ <p>Kamu sedang berada di rumah tua. Sepedamu adalah satu-satunya kendaraan untuk menemukan jalan keluar.</p>
+ <p>Geser jalur dengan tombol panah. Kumpulkan lentera dan jauhi hantu.</p>
+ <div class="actions"><button class="action" id="gotIt">Aku Siap!</button><button class="secondary" id="skipIntro">Lewati Petunjuk</button></div>`;
+ $("gotIt").onclick=()=>{state.onboarded=true;save();showMenu()};
+ $("skipIntro").onclick=()=>{state.onboarded=true;save();showMenu()};
+}
+render(0);
+})();
+</script>
+</body>
+</html>
